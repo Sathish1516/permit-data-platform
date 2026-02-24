@@ -3,22 +3,30 @@ from datetime import datetime
 import json
 import os
 
-URL = "https://data.cityofnewyork.us/resource/ipu4-2q9a.json?$limit=10"
+from src.config import BASE_URL, LIMIT, TIMEOUT
+from src.logger import logger
 
 def fetch_raw():
-    response = requests.get(URL, timeout=30)
-    response.raise_for_status()
+    url = f"{BASE_URL}?$limit={LIMIT}"
+    logger.info(f"Starting ingestion from {url}")
 
-    data = response.json()
+    try:
+        response = requests.get(url, timeout=TIMEOUT)
+        response.raise_for_status()
+        data = response.json()
 
-    os.makedirs("data/raw", exist_ok=True)
+        os.makedirs("data/raw", exist_ok=True)
+        filename = f"data/raw/permits_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        
+        with open(filename, "w",encoding="utf-8") as f:
+            json.dump(data,f,indent=2)
 
-    filename = f"data/raw/permits_{datetime.now().strftime('%Y-%m-%d')}.json"
-
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-    print("Saved file:", filename)
+        logger.info(f"Saved {len(data)} records to {filename}")
+        print("Success:", filename)
+    
+    except Exception as e:
+        logger.error(f"Ingestion failed: {str(e)}")
+        print("FAILED - check logs/run.log")
 
 if __name__ == "__main__":
     fetch_raw()

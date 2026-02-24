@@ -1,0 +1,2 @@
+2026-02-24 22:31:06,389 - INFO - Starting ingestion from https://data.cityofnewyork.us/resource/ipu4-2q9a.json?$limit=10
+2026-02-24 22:31:07,857 - INFO - Saved 10 records to data/raw/permits_20260224_223107.json
