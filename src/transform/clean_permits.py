@@ -13,7 +13,16 @@ def transform():
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT id, raw_data FROM raw_permits")
+    # last processed id
+    cur.execute("SELECT last_raw_id FROM pipeline_state ORDER BY id DESC LIMIT 1")
+    last_processed_id = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT id, raw_data
+        FROM raw_permits
+        WHERE id > %s
+        ORDER BY id
+    """, (last_processed_id,))
     rows = cur.fetchall()
 
     for raw_id, raw in rows:
@@ -39,6 +48,11 @@ def transform():
             permit_id, issue_date, address, borough, job_type,
             building_type, work_type, zip_code, latitude, neighborhood, raw_id
         ))
+
+    # update checkpoint ONLY after success
+    if rows:
+        max_id = rows[-1][0]   # last row because ORDER BY id
+        cur.execute("UPDATE pipeline_state SET last_raw_id = %s", (max_id,))
 
     conn.commit()
     cur.close()
