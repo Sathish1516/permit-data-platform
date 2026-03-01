@@ -32,8 +32,9 @@ def transform():
         cur.execute("""
             INSERT INTO staging_permits
             (permit_id, issue_date, address, borough, job_type,
-             building_type, work_type, zip_code, latitude, neighborhood, raw_id)
+            building_type, work_type, zip_code, latitude, neighborhood, raw_id)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            ON CONFLICT (permit_id) DO NOTHING
         """, (
             permit_id, issue_date, address, borough, job_type,
             building_type, work_type, zip_code, latitude, neighborhood, raw_id
