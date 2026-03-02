@@ -17,12 +17,24 @@ def is_valid(permit_id, issue_date,borough, latitude):
     return True, None
 
 def safe_date(val):
-    if not val:
+    if not val or val.strip() == "":
         return None
-    try:
-        return datetime.strptime(val[:10], "%Y-%m-%d").date()
-    except:
-        return None
+
+    formats = [
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%m/%d/%Y %H:%M:%S",   # <-- your dataset format
+        "%m/%d/%Y"
+    ]
+
+    for fmt in formats:
+        try:
+            return datetime.strptime(val.strip(), fmt).date()
+        except:
+            continue
+
+    return None
 
 def transform():
     conn = get_connection()
@@ -39,6 +51,9 @@ def transform():
         ORDER BY id
     """, (last_processed_id,))
     rows = cur.fetchall()
+
+    print("Last processed id:", last_processed_id)
+    print("Rows fetched:", len(rows))
 
     for raw_id, raw in rows:
 
