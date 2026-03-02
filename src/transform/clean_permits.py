@@ -1,5 +1,20 @@
+import json
 from src.db import get_connection
 from datetime import datetime
+
+def is_valid(permit_id, issue_date,borough, latitude):
+    if not permit_id:
+        return False , "missing_permit_id"
+    if not issue_date:
+        return False , "invalid_issue_date"
+    if not borough:
+        return False , "missing_borough"
+    try:
+        if latitude:
+            float(latitude)
+    except:
+        return False , "invalid_latitude"
+    return True, None
 
 def safe_date(val):
     if not val:
@@ -37,6 +52,14 @@ def transform():
         zip_code = raw.get("zip_code")
         latitude = raw.get("gis_latitude")
         neighborhood = raw.get("gis_nta_name")
+
+        valid, reason = is_valid(permit_id, issue_date, borough, latitude)
+        if not valid:
+            cur.execute("""
+                        INSERT INTO rejected_permits (raw_id, reason,raw_data)
+                        VALUES (%s, %s, %s)
+                    """, (raw_id, reason, json.dumps(raw)))
+            continue
 
         cur.execute("""
             INSERT INTO staging_permits
