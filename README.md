@@ -30,6 +30,60 @@ Pipeline supports:
 - Backfill capability
 
 
+
+## Pipeline Flow Diagram
+```text
+                ┌──────────────────────────┐
+                │   Source API (NYC Data)  │
+                └─────────────┬────────────┘
+                              │
+                              ▼
+                    ┌──────────────────┐
+                    │  Ingestion Layer │
+                    │  fetch_raw.py    │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │   Raw Layer      │
+                    │ raw_permits      │
+                    │ (JSONB storage)  │
+                    └────────┬─────────┘
+                             │
+                    Validation & Cleaning
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │  Staging Layer   │
+                    │ staging_permits  │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │  Rejected Layer  │
+                    │ rejected_permits │
+                    └──────────────────┘
+
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │  Gold Layer      │
+                    │ monthly_summary  │
+                    └──────────────────┘
+```
+
+
+## Tech Stack
+
+- Python 3
+- PostgreSQL (JSONB storage)
+- psycopg2
+- Incremental checkpoint processing
+- Idempotent upsert logic
+- SQL aggregation
+
+
+
 ## Data Model
 
 ### Tables
