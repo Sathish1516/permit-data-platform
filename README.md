@@ -99,7 +99,6 @@ Pipeline supports:
    python -m src.analytics.build_monthly_summary
 
 
-
 ## Engineering Concepts Demonstrated
 
 - ETL pipeline design
