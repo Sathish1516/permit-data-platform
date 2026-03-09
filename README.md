@@ -163,3 +163,12 @@ Pipeline supports:
 - Checkpoint-based recovery
 - Backfill workflows
 - SQL aggregation modeling
+
+## Running with Docker
+
+This project supports running the entire data pipeline using Docker.
+
+### Start the containers
+
+```bash
+docker compose up --build
